@@ -11,7 +11,7 @@ const PostComments = ({ post, comments, setComments }) => {
     const { auth } = useAuth();
     const api = useAxios();
     const [input, setInput] = useState("");
-    console.log(comments);
+
 
     async function handleComment(e) {
         const enterKey = 13;

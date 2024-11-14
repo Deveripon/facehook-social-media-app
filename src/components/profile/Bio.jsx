@@ -19,7 +19,6 @@ const Bio = () => {
                 `${get_profile_api_url}/${state?.user?.id}`,
                 { bio: bio }
             );
-            console.log(response);
 
             if (response.status === 200) {
                 dispatch({

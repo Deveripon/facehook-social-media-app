@@ -5,12 +5,10 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { login } from "../../api";
 import Spinner from "../../svg/Spinner";
-import useLocalStorage from "../../hooks/useLocalStorage";
 
 const LoginForm = () => {
     const { setAuth } = useAuth();
     const navigate = useNavigate();
-    const [setValue] = useLocalStorage("auth", {});
     const {
         handleSubmit,
         register,
@@ -26,7 +24,6 @@ const LoginForm = () => {
             if (data?.user) {
                 //set auth information to auth
                 const { user, token } = data;
-                console.log(`login time authToken=  ${token.token}`);
                 setAuth({
                     user,
                     accessToken: token.token,

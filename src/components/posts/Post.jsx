@@ -5,7 +5,6 @@ import PostComments from "./PostComments";
 import PostHeader from "./PostHeader";
 
 const Post = ({ post }) => {
-    console.log(post);
     const [comments, setComments] = useState([...post.comments]);
 
     return (

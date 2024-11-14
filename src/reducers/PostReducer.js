@@ -35,7 +35,27 @@ export const postReducer = (state, action) => {
                 loading: false,
             };
         }
-        default:
-            break;
+        case actions.postActions.POST_DELETED: {
+            return {
+                ...state,
+                loading: false,
+                posts: state.posts.filter((post) => post.id !== action.data),
+            };
+        }
+        case actions.postActions.POST_EDITED: {
+            return {
+                ...state,
+                loading: false,
+                posts: state.posts.map((post) => {
+                    if (post.id === action.data.id) {
+                        return action.data;
+                    }
+                    return post;
+                }),
+            };
+        }
+        default: {
+            return state;
+        }
     }
 };

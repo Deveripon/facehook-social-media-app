@@ -2,17 +2,17 @@ import { useProfile } from "../../hooks/useProfile";
 import defaultAvatar from "../../assets/images/avatars/avatar.svg";
 import { api_base_url } from "../../constant";
 import useAuth from "../../hooks/useAuth";
-import { useState } from "react";
 import PostForm from "./PostForm";
+import usePost from "../../hooks/usePost";
 const CreateNewPost = () => {
     const { state } = useProfile();
     const { auth } = useAuth();
     const user = state?.user ?? auth?.user;
-    const [show, setShow] = useState(false);
+    const { showPostForm, setShowPostForm } = usePost();
     return (
         <>
-            {show && <PostForm setShow={setShow} />}
-            {!show && (
+            {showPostForm.status && <PostForm />}
+            {!showPostForm.status && (
                 <div className='card'>
                     <div className='flex-center mb-3 gap-2 lg:gap-4'>
                         {user?.avatar ? (
@@ -31,7 +31,13 @@ const CreateNewPost = () => {
 
                         <div className='flex-1'>
                             <textarea
-                                onClick={() => setShow(true)}
+                                onClick={() =>
+                                    setShowPostForm({
+                                        ...showPostForm,
+                                        status: true,
+                                        mode: "create",
+                                    })
+                                }
                                 className='h-16 w-full rounded-md bg-lighterDark p-3 focus:outline-none sm:h-20 sm:p-6'
                                 name='post'
                                 id='post'

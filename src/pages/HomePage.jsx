@@ -10,7 +10,6 @@ import usePost from "../hooks/usePost";
 const HomePage = () => {
     const { state, dispatch } = usePost();
     const api = useAxios();
-    console.log(state);
 
     useEffect(() => {
         let ignore = false;

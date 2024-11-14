@@ -16,14 +16,14 @@ const RegistrationForm = () => {
     } = useForm();
 
     async function handleFormSubmission(formData) {
-        console.log(formData);
+
         const formInputs = {
             firstName: formData?.firstName,
             lastName: formData?.lastName,
             email: formData?.email,
             password: formData?.password,
         };
-        console.log(formInputs);
+
 
         try {
             const response = await axios.post(

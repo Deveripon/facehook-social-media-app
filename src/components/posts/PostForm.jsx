@@ -8,12 +8,12 @@ import { useProfile } from "../../hooks/useProfile";
 import usePost from "../../hooks/usePost";
 import { actions } from "../../actions/actions";
 
-const PostForm = ({ setShow }) => {
+const PostForm = () => {
     const { auth } = useAuth();
     const { state } = useProfile();
     const api = useAxios();
     const user = state?.user ?? auth?.user;
-    const { dispatch } = usePost();
+    const { dispatch, setShowPostForm, showPostForm } = usePost();
     const {
         register,
         handleSubmit,
@@ -21,40 +21,82 @@ const PostForm = ({ setShow }) => {
         formState: { errors },
     } = useForm();
 
+    let image = null;
+    //image preview
+    function previewImage(e) {
+        const file = e.target.files[0];
+        const previewUrl = URL.createObjectURL(file);
+        setShowPostForm({
+            ...showPostForm,
+            previewUrl,
+        });
+    }
+
     async function handleFormSubmission(formData) {
         const textInputs = formData.content;
-        const photo = formData.photo[0];
-        if (!textInputs && !photo) {
+        const image = formData.photo[0];
+        //post form validation that is there any text or photo
+        if (!textInputs && !image) {
             setError("root", {
                 type: "postError",
                 message: "A post need minimum a Image or Some Content",
             });
-        } else {
-            const formData = {
-                content: textInputs,
-                photo: photo ?? null,
-                postType: photo ? "image" : "text",
-            };
-            try {
-                dispatch({ type: actions.postActions.POST_DATA_FATCHING });
-                const response = await api.post(
-                    `${api_base_url}/posts`,
-                    formData
-                );
+            return false;
+        }
+
+        const data = {
+            content: textInputs,
+            image: image ?? null,
+        };
+
+        const dta = new FormData();
+        dta.append("content", data.content);
+        dta.append("image", data.image);
+
+        try {
+            dispatch({ type: actions.postActions.POST_DATA_FATCHING });
+            //if form submit in create mode Then create post
+            if (showPostForm.mode === "create") {
+                const response = await api.post(`${api_base_url}/posts`, dta);
                 if (response.status === 200) {
+                    console.log(response);
                     dispatch({
                         type: actions.postActions.POST_CREATED,
                         data: response.data,
                     });
-                    setShow(false);
+                    setShowPostForm({
+                        ...showPostForm,
+                        status: false,
+                    });
+                    //IF form submit in edit mode Then edit post
                 }
-            } catch (error) {
-                console.log(error);
-                dispatch({
-                    type: actions.postActions.POST_DATA_FETCH_ERROR,
-                    error: error,
-                });
             }
+
+            //if form submit in edit mode Then edit post
+            if (showPostForm.mode === "edit") {
+                // Edit Post call
+                const response = await api.patch(
+                    `${api_base_url}/posts/${showPostForm.data.id}`,
+                    dta
+                );
+                if (response.status === 200) {
+                    dispatch({
+                        type: actions.postActions.POST_EDITED,
+                        data: response.data,
+                    });
+                    setShowPostForm({
+                        ...showPostForm,
+                        status: false,
+                        data: null,
+                    });
+                }
+            }
+        } catch (error) {
+            console.log(error);
+            dispatch({
+                type: actions.postActions.POST_DATA_FETCH_ERROR,
+                error: error,
+            });
         }
     }
 
@@ -62,10 +104,18 @@ const PostForm = ({ setShow }) => {
         <div className='card relative'>
             <div className='head flex items-center justify-center'>
                 <h6 className='mb-3 text-center text-lg font-bold lg:text-xl'>
-                    Create Post
+                    {showPostForm.mode === "create"
+                        ? "Create Post"
+                        : "Edit Post"}
                 </h6>
                 <button
-                    onClick={() => setShow(false)}
+                    onClick={() =>
+                        setShowPostForm({
+                            ...showPostForm,
+                            status: false,
+                            data: null,
+                        })
+                    }
                     className='absolute right-3 top-3 bg-gray-800 hover:bg-gray-900/50 duration-200 p-1 rounded-full'>
                     <img src={CloseIcon} alt='close' />
                 </button>
@@ -101,6 +151,14 @@ const PostForm = ({ setShow }) => {
                         className='hidden'
                     />
                 </div>
+                {/*  //image preview */}
+                {showPostForm.previewUrl && (
+                    <img
+                        className='max-w-full'
+                        src={showPostForm.previewUrl}
+                        alt='preview'
+                    />
+                )}
                 {/* Post Text Input */}
                 <textarea
                     {...register("content")}
@@ -108,20 +166,31 @@ const PostForm = ({ setShow }) => {
                     id='content'
                     placeholder='Share your thoughts...'
                     className='h-[120px] w-full bg-transparent focus:outline-none lg:h-[160px]'
-                    defaultValue={""}
+                    defaultValue={showPostForm.data?.content}
                 />
                 {errors.root?.message && (
                     <div className='bg-red-600/50 p-3 rounded-md mb-1 mt-3 text-white'>
                         <p>{errors.root?.message}</p>
                     </div>
                 )}
-                <div className='border-t border-[#3F3F3F] pt-4 lg:pt-6'>
-                    <button
-                        className='auth-input bg-lwsGreen font-bold text-deepDark transition-all hover:opacity-90'
-                        type='submit'>
-                        Post
-                    </button>
-                </div>
+                {showPostForm.mode === "edit" && (
+                    <div className='border-t border-[#3F3F3F] pt-4 lg:pt-6'>
+                        <button
+                            className='auth-input bg-lwsGreen font-bold text-deepDark transition-all hover:opacity-90'
+                            type='submit'>
+                            Update
+                        </button>
+                    </div>
+                )}
+                {showPostForm.mode === "create" && (
+                    <div className='border-t border-[#3F3F3F] pt-4 lg:pt-6'>
+                        <button
+                            className='auth-input bg-lwsGreen font-bold text-deepDark transition-all hover:opacity-90'
+                            type='submit'>
+                            Post
+                        </button>
+                    </div>
+                )}
             </form>
         </div>
     );

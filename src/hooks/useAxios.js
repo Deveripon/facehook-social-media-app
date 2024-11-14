@@ -11,7 +11,6 @@ const useAxios = () => {
         const requestInterceptor = api.interceptors.request.use(
             (config) => {
                 const accessToken = auth?.accessToken;
-                console.log(`Request Time token = ${accessToken}`);
                 if (accessToken) {
                     config.headers.Authorization = `Bearer ${accessToken}`;
                 }
@@ -41,9 +40,6 @@ const useAxios = () => {
                             { refreshToken }
                         );
                         const { token } = response.data;
-                        console.log(
-                            `Generated Token with refreshToken = ${token}`
-                        );
                         //set new auth token to auth
                         setAuth({ ...auth, accessToken: token });
 

@@ -28,7 +28,7 @@ const createNewPost = (req, res) => {
 
   const user = getAuthUser(req);
   const { id, name, avatar } = user;
-  console.log(req?.body);
+
   const post = {
     postType: req?.file?.filename ? "image" : "text",
     content: req?.body?.content || req?.body?.formData?.content || "",
@@ -63,7 +63,7 @@ const updatePost = (req, res) => {
   const { postId } = req.params;
 
   const post = db.get("posts").find({ id: postId }).value();
-  console.log(post);
+
   if (post == null || post == undefined || !post) {
     return res.status(404).send({ message: "No posts found" });
   }

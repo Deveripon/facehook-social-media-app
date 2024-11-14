@@ -1,9 +1,7 @@
-import { NavLink } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import useAxios from "../hooks/useAxios";
 import { useEffect, useState } from "react";
 import { get_profile_api_url } from "../constant";
-import Spinner from "../svg/Spinner";
 import { useProfile } from "../hooks/useProfile";
 import { actions } from "../actions/actions";
 import ProfileInfo from "../components/profile/ProfileInfo";
@@ -15,6 +13,7 @@ const ProfilePage = () => {
     const api = useAxios();
     const loggedInUserId = auth?.user?.id;
     const { state, dispatch } = useProfile();
+    const [posts, setPosts] = useState(state?.posts);
 
     useEffect(() => {
         let ignore = false;
@@ -26,7 +25,6 @@ const ProfilePage = () => {
                 const response = await api.get(
                     `${get_profile_api_url}/${loggedInUserId}`
                 );
-                console.log(response.data);
 
                 if (!ignore) {
                     dispatch({
@@ -36,6 +34,7 @@ const ProfilePage = () => {
                             posts: response.data.posts,
                         },
                     });
+                    setPosts(response.data.posts);
                 }
             } catch (error) {
                 dispatch({
@@ -56,7 +55,7 @@ const ProfilePage = () => {
     return (
         <div>
             <ProfileInfo />
-            <MyPosts />
+            <MyPosts posts={posts} />
         </div>
     );
 };
