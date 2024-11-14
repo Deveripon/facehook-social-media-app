@@ -1,0 +1,19 @@
+import { useProfile } from "../../hooks/useProfile";
+import Post from "./Post";
+
+const PostList = ({ posts }) => {
+    const sortedPosts = posts?.sort(
+        (a, b) => new Date(b?.createAt) - new Date(a?.createAt)
+    );
+    console.log(`sortted`, sortedPosts);
+
+    return sortedPosts && sortedPosts.length > 0 ? (
+        sortedPosts.map((post) => {
+            return <Post key={post.id} post={post} />;
+        })
+    ) : (
+        <h3>No Posts Found</h3>
+    );
+};
+
+export default PostList;
